@@ -14,6 +14,7 @@ from nana import Owner
 from nana import OwnerName
 from nana import PM_PERMIT
 from nana import setbot
+from nana.utils.parser import mention_markdown
 if DB_AVAILABLE:
     from nana.plugins.database.pm_db import (
         set_whitelist,
@@ -40,8 +41,7 @@ async def pm_block(client, message):
     if message.chat.id in AdminSettings:
         set_whitelist(message.chat.id, True)
     if not get_whitelist(message.chat.id):
-        if message.service:
-            return
+        await client.read_history(message.chat.id)
         if message.text:
             for x in message.text.lower().split():
                 if x in BLACKLIST:
@@ -153,7 +153,10 @@ async def pm_button(client, query):
                 callback_data=f'engine_pm_blk-{query.from_user.id}',
             ),
         )
-        pm_bot_message = f'~{query.from_user.mention} want to contact you~'
+        pm_bot_mention = mention_markdown(
+            query.from_user.id, query.from_user.first_name,
+        )
+        pm_bot_message = f'~{pm_bot_mention} want to contact you~'
         await setbot.send_message(
             NOTIFY_ID,
             pm_bot_message,
@@ -164,7 +167,7 @@ async def pm_button(client, query):
         await setbot.edit_inline_text(query.inline_message_id, '👍')
         await app.send_message(
             query.from_user.id,
-            f'Hello {query.from_user.mention}, report bugs in @nanabotsupport',
+            'Hello, if you want to report any bugs, visit @NanaBotSupport.',
         )
     elif re.match('engine_pm_none', query.data):
         await setbot.edit_inline_text(query.inline_message_id, '👍')
@@ -176,8 +179,7 @@ async def pm_button(client, query):
         target = query.data.split('-')[1]
         await query.message.edit_text(f'[Approved to PM]({target})')
         await app.send_message(
-            target,
-            f'Hello {query.from_user.mention}, you have been approved to PM.',
+            target, 'Hello, this is **Nana**, my master approved you to PM.',
         )
         set_whitelist(int(target), True)
     elif re.match(r'engine_pm_blk', query.data):
@@ -185,7 +187,7 @@ async def pm_button(client, query):
         await query.message.edit_text('That user was blocked ~')
         await app.send_message(
             target,
-            f'Hello {query.from_user.mention}, you have been blocked.\nSorry about this!',
+            'Hello, you have been blocked.\nSorry about this!',
         )
         await app.block_user(target)
     else:
