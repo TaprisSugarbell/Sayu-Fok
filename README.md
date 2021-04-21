@@ -6,6 +6,10 @@
 
 A Modular Pyrogram Based Userbot with an Assistant
 
+## Heroku
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/TaprisSugarbell/Sayu-Fok)
+
 ## Installation Guide
 
 See our documentation to get [Installation Guide](https://nana.pokurt.me).
